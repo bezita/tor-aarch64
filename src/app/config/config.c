@@ -2113,6 +2113,11 @@ options_act,(const or_options_t *old_options))
              "in a non-anonymous mode. It will provide NO ANONYMITY.");
   }
 
+  if (dns_internal_cache_disabled(options)) {
+    log_warn(LD_GENERAL, "Internal DNS cache is disabled, make sure you use "
+             "an external DNS cache, and beware of centralized caches.");
+  }
+
   /* 31851: OutboundBindAddressExit is relay-only */
   if (parse_outbound_addresses(options, 0, &msg) < 0) {
     // LCOV_EXCL_START

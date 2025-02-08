@@ -1320,6 +1320,13 @@ make_pending_resolve_cached(cached_resolve_t *resolve)
   assert_cache_ok();
 }
 
+/* Is internal DNS cache disabled */
+int
+dns_internal_cache_disabled(const or_options_t *options)
+{
+  return options->DisableDnsCache ? 1 : 0;
+}
+
 /** Eventdns helper: return true iff the eventdns result <b>err</b> is
  * a transient failure. */
 static int
