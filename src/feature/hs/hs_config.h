@@ -17,7 +17,7 @@
 #define HS_CONFIG_V3_MAX_INTRO_POINTS 20
 /* Default value for the introduction DoS defenses. The MIN/MAX are inclusive
  * meaning they can be used as valid values. */
-#define HS_CONFIG_V3_DOS_DEFENSE_DEFAULT 0
+#define HS_CONFIG_V3_DOS_DEFENSE_DEFAULT 1
 #define HS_CONFIG_V3_DOS_DEFENSE_RATE_PER_SEC_DEFAULT 25
 #define HS_CONFIG_V3_DOS_DEFENSE_RATE_PER_SEC_MIN 0
 #define HS_CONFIG_V3_DOS_DEFENSE_RATE_PER_SEC_MAX INT32_MAX
