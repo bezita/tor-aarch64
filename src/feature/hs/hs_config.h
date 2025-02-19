@@ -26,7 +26,7 @@
 #define HS_CONFIG_V3_DOS_DEFENSE_BURST_PER_SEC_MAX INT32_MAX
 
 /* Default values for the HS anti-DoS PoW defenses. */
-#define HS_CONFIG_V3_POW_DEFENSES_DEFAULT 0
+#define HS_CONFIG_V3_POW_DEFENSES_DEFAULT 1
 
 /* API */
 
