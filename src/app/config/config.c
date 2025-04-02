@@ -402,6 +402,7 @@ static const config_var_t option_vars_[] = {
   V(CountPrivateBandwidth,       BOOL,     "0"),
   VAR_IMMUTABLE("DataDirectory", FILENAME, DataDirectory_option, NULL),
   V(DataDirectoryGroupReadable,  BOOL,     "0"),
+  V(DisableDnsCache,             BOOL,     "0"),
   V(DisableOOSCheck,             BOOL,     "1"),
   V(DisableNetwork,              BOOL,     "0"),
   V(DirAllowPrivateAddresses,    BOOL,     "0"),
@@ -2110,6 +2111,11 @@ options_act,(const or_options_t *old_options))
   if (hs_service_non_anonymous_mode_enabled(options)) {
     log_warn(LD_GENERAL, "This copy of Tor was compiled or configured to run "
              "in a non-anonymous mode. It will provide NO ANONYMITY.");
+  }
+
+  if (dns_internal_cache_disabled(options)) {
+    log_warn(LD_GENERAL, "Internal DNS cache is disabled, make sure you use "
+             "an external DNS cache, and beware of centralized caches.");
   }
 
   /* 31851: OutboundBindAddressExit is relay-only */

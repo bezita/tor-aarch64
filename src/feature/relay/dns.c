@@ -1285,7 +1285,7 @@ make_pending_resolve_cached(cached_resolve_t *resolve)
   * expire. See fd0bafb0dedc7e2 for a brief explanation of how this got that
   * way.  XXXXX we could do better!*/
 
-  {
+  if (!get_options()->DisableDnsCache) {
     cached_resolve_t *new_resolve = tor_memdup(resolve,
                                                sizeof(cached_resolve_t));
     uint32_t ttl = UINT32_MAX;
@@ -1318,6 +1318,13 @@ make_pending_resolve_cached(cached_resolve_t *resolve)
   }
 
   assert_cache_ok();
+}
+
+/* Is internal DNS cache disabled */
+int
+dns_internal_cache_disabled(const or_options_t *options)
+{
+  return options->DisableDnsCache ? 1 : 0;
 }
 
 /** Eventdns helper: return true iff the eventdns result <b>err</b> is
