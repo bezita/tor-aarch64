@@ -229,6 +229,7 @@ ht_string_hash(const char *s)
 #include "lib/err/torerr.h"
 #define HT_ASSERT_(x) raw_assert(x)
 #else
+#define ATTR_UNUSED
 #define HT_ASSERT_(x) (void)0
 #endif
 
