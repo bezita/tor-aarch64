@@ -22,6 +22,8 @@ jobs:
             -w /src \
             multiarch/crossbuild \
             bash -c "
+              # Update APT sources to use Debian Buster or Bullseye
+              sed -i 's|http://deb.debian.org/debian stretch|http://deb.debian.org/debian bullseye|g' /etc/apt/sources.list && \
               apt update && \
               DEBIAN_FRONTEND=noninteractive apt install -y \
                 autoconf automake libtool pkg-config libevent-dev && \
