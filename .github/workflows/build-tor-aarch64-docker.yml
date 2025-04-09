@@ -8,41 +8,47 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout repository
+      - name: Checkout source
         uses: actions/checkout@v3
 
-      - name: Build Tor inside Docker (aarch64)
+      - name: Install build dependencies
         run: |
-          docker run --rm -v ${{ github.workspace }}:/src \
-            -w /src \
-            multiarch/crossbuild \
-            bash -c '
-              set -e
+          sudo apt-get update
+          sudo apt-get install -y \
+            autoconf \
+            automake \
+            libtool \
+            pkg-config \
+            libevent-dev \
+            zlib1g-dev \
+            libssl-dev \
+            crossbuild-essential-arm64
 
-              apt-get update
-              DEBIAN_FRONTEND=noninteractive apt-get install -y \
-                autoconf \
-                automake \
-                libtool \
-                pkg-config \
-                crossbuild-essential-arm64 \
-                libevent-dev
+      - name: Prepare cross-compile environment
+        run: |
+          export CC=aarch64-linux-gnu-gcc
+          export AR=aarch64-linux-gnu-ar
+          export RANLIB=aarch64-linux-gnu-ranlib
+          export LD=aarch64-linux-gnu-ld
+          export PKG_CONFIG_PATH=/usr/lib/aarch64-linux-gnu/pkgconfig
 
-              export CC=aarch64-linux-gnu-gcc
-              export LD=aarch64-linux-gnu-ld
-              export AR=aarch64-linux-gnu-ar
-              export RANLIB=aarch64-linux-gnu-ranlib
-              export PKG_CONFIG_PATH=/usr/lib/aarch64-linux-gnu/pkgconfig
+          ./autogen.sh
 
-              ./autogen.sh
+          ./configure \
+            --host=aarch64-linux-gnu \
+            --disable-asciidoc \
+            --disable-manpage \
+            --prefix=$(pwd)/tor-aarch64
 
-              ./configure \
-                --host=aarch64-linux-gnu \
-                --disable-asciidoc \
-                --disable-manpage \
-                --prefix=/src/tor-aarch64
+      - name: Build Tor
+        run: |
+          make -j$(nproc)
+          make install
 
-              make -j$(nproc)
-              make install
-            '
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: tor-aarch64
+          path: tor-aarch64/
