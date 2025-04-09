@@ -3,25 +3,35 @@
     docker run --rm -v ${{ github.workspace }}:/src \
       -w /src \
       multiarch/crossbuild \
-      bash -c "
-        dpkg --add-architecture arm64 && \
-        sed -i 's|stretch|bullseye|g' /etc/apt/sources.list && \
-        sed -i '/security.debian.org/d' /etc/apt/sources.list && \
-        apt-key adv --keyserver keyserver.ubuntu.com --recv-keys \
-          0E98404D386FA1D9 \
-          6ED0E7B82643E131 \
-          605C66F00D6C9793 && \
-        apt-get update && \
+      bash -c '
+        set -e
+
+        # 配置 apt 源并安装依赖
+        sed -i "s|http://deb.debian.org|http://deb.debian.org|g" /etc/apt/sources.list
+        apt-get update
         apt-get install -y \
-          autoconf automake libtool pkg-config \
-          libevent-dev:arm64 && \
-        ./autogen.sh && \
+          autoconf \
+          automake \
+          libtool \
+          pkg-config \
+          crossbuild-essential-arm64 \
+          libevent-dev
+
+        # 设置交叉编译环境变量（很关键）
+        export CC=aarch64-linux-gnu-gcc
+        export LD=aarch64-linux-gnu-ld
+        export AR=aarch64-linux-gnu-ar
+        export RANLIB=aarch64-linux-gnu-ranlib
+        export PKG_CONFIG_PATH=/usr/lib/aarch64-linux-gnu/pkgconfig
+
+        ./autogen.sh
+
         ./configure \
           --host=aarch64-linux-gnu \
           --disable-asciidoc \
           --disable-manpage \
-          --prefix=/src/tor-aarch64 \
-          --with-libevent-dir=/usr/lib/aarch64-linux-gnu && \
-        make -j$(nproc) && \
+          --prefix=/src/tor-aarch64
+
+        make -j$(nproc)
         make install
-      "
+      '
