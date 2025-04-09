@@ -22,11 +22,21 @@ jobs:
             -w /src \
             multiarch/crossbuild \
             bash -c "
-              # Update APT sources to use Debian Buster or Bullseye
+              # Update APT sources to use Debian Bullseye
               sed -i 's|http://deb.debian.org/debian stretch|http://deb.debian.org/debian bullseye|g' /etc/apt/sources.list && \
+              
+              # Import missing GPG keys
+              apt-key adv --keyserver keyserver.ubuntu.com --recv-keys \
+                0E98404D386FA1D9 \
+                6ED0E7B82643E131 \
+                605C66F00D6C9793 && \
+                
+              # Update package list and install dependencies
               apt update && \
               DEBIAN_FRONTEND=noninteractive apt install -y \
                 autoconf automake libtool pkg-config libevent-dev && \
+              
+              # Build Tor
               ./autogen.sh && \
               ./configure \
                 --host=aarch64-linux-gnu \
