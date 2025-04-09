@@ -24,21 +24,19 @@ jobs:
             bash -c "
               # 更新 APT 源为 Bullseye
               sed -i 's|stretch|bullseye|g' /etc/apt/sources.list && \
-              
               # 禁用安全更新
               sed -i '/security.debian.org/d' /etc/apt/sources.list && \
-              
               # 导入缺失的 GPG 公钥
               apt-key adv --keyserver keyserver.ubuntu.com --recv-keys \
                 0E98404D386FA1D9 \
                 6ED0E7B82643E131 \
                 605C66F00D6C9793 && \
-                
               # 更新软件包列表并安装依赖
               apt update && \
               DEBIAN_FRONTEND=noninteractive apt install -y \
                 autoconf automake libtool pkg-config libevent-dev && \
-              
+              # 如果 libevent 不在标准路径，可以手动指定路径
+              # ./configure --with-libevent-dir=/path/to/libevent && \
               # 构建 Tor
               ./autogen.sh && \
               ./configure \
