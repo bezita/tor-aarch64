@@ -1,37 +1,48 @@
-- name: Build Tor inside Docker (aarch64)
-  run: |
-    docker run --rm -v ${{ github.workspace }}:/src \
-      -w /src \
-      multiarch/crossbuild \
-      bash -c '
-        set -e
+name: Build Tor for AARCH64
 
-        # 配置 apt 源并安装依赖
-        sed -i "s|http://deb.debian.org|http://deb.debian.org|g" /etc/apt/sources.list
-        apt-get update
-        apt-get install -y \
-          autoconf \
-          automake \
-          libtool \
-          pkg-config \
-          crossbuild-essential-arm64 \
-          libevent-dev
+on:
+  push:
+    branches: [ main ]
+  pull_request:
 
-        # 设置交叉编译环境变量（很关键）
-        export CC=aarch64-linux-gnu-gcc
-        export LD=aarch64-linux-gnu-ld
-        export AR=aarch64-linux-gnu-ar
-        export RANLIB=aarch64-linux-gnu-ranlib
-        export PKG_CONFIG_PATH=/usr/lib/aarch64-linux-gnu/pkgconfig
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-        ./autogen.sh
+      - name: Build Tor inside Docker (aarch64)
+        run: |
+          docker run --rm -v ${{ github.workspace }}:/src \
+            -w /src \
+            multiarch/crossbuild \
+            bash -c '
+              set -e
 
-        ./configure \
-          --host=aarch64-linux-gnu \
-          --disable-asciidoc \
-          --disable-manpage \
-          --prefix=/src/tor-aarch64
+              apt-get update
+              DEBIAN_FRONTEND=noninteractive apt-get install -y \
+                autoconf \
+                automake \
+                libtool \
+                pkg-config \
+                crossbuild-essential-arm64 \
+                libevent-dev
 
-        make -j$(nproc)
-        make install
-      '
+              export CC=aarch64-linux-gnu-gcc
+              export LD=aarch64-linux-gnu-ld
+              export AR=aarch64-linux-gnu-ar
+              export RANLIB=aarch64-linux-gnu-ranlib
+              export PKG_CONFIG_PATH=/usr/lib/aarch64-linux-gnu/pkgconfig
+
+              ./autogen.sh
+
+              ./configure \
+                --host=aarch64-linux-gnu \
+                --disable-asciidoc \
+                --disable-manpage \
+                --prefix=/src/tor-aarch64
+
+              make -j$(nproc)
+              make install
+            '
